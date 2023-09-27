@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from "@angular/forms";
+import { ToastrService } from 'ngx-toastr';
+import { ProductService } from 'src/app/services/product.service';
 
 @Component({
   selector: 'app-product-add',
@@ -10,7 +12,7 @@ export class ProductAddComponent implements OnInit {
 
   productAddForm: FormGroup;
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(private formBuilder: FormBuilder, private productService: ProductService, private toastrService:ToastrService) {
 
   }
   ngOnInit(): void {
@@ -28,8 +30,20 @@ export class ProductAddComponent implements OnInit {
     })
   }
   add() {
-    let productModel = Object.assign({}, this.productAddForm.value);
-    console.log(productModel);
+    if (this.productAddForm.valid) {
+
+      let productModel = Object.assign({}, this.productAddForm.value);
+      this.productService.add(productModel).subscribe(response=>{
+        console.log(response)
+        this.toastrService.success(response.message,"Başarılı");
+      }, responseError => {
+        console.log(responseError);
+        this.toastrService.error(responseError.error,"Hata");
+      })
+    }
+    else{
+      this.toastrService.error("Form eksik","Dikkat");
+    }
   }
 
 }
